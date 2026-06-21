@@ -90,7 +90,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh; padding: 20px;
         }
-        .container {
+        main.container {
             background: white; border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 30px; max-width: 900px; margin: 0 auto;
@@ -152,8 +152,16 @@
         .faq-item { max-width: 800px; margin: 0 auto 20px; }
         .faq-item h3 { color: #667eea; margin-bottom: 8px; font-size: 1em; }
         .faq-item p { color: #666; line-height: 1.6; }
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            border: 0;
+        }
         @media (max-width: 600px) {
-            .container { padding: 15px; }
+            main.container { padding: 15px; }
             .comparison-row { grid-template-columns: 1fr; }
             .details-grid { grid-template-columns: 1fr 1fr; }
             .button-group { flex-direction: column; }
@@ -161,62 +169,62 @@
     </style>
 </head>
 <body>
-    <div class="container">
+    <main class="container" role="main" aria-label="Image Compression Tool">
         <h1>🗜️ Free Image Compressor Online</h1>
         <p class="subtitle">Compress JPEG, PNG, WebP - Reduce Size by 90% - Free & Private</p>
 
-        <div class="upload-area" id="uploadArea">
+        <div class="upload-area" id="uploadArea" role="button" aria-label="Upload images - Click or drag and drop" tabindex="0">
             <div class="upload-icon">📁</div>
             <p>Click to upload or drag & drop images here</p>
             <small style="color:#999;">Supports: JPEG, PNG, WebP, BMP, GIF, TIFF</small>
         </div>
-        <input type="file" id="fileInput" accept="image/*" multiple>
+        <input type="file" id="fileInput" accept="image/*" multiple aria-label="File input for images">
 
         <div class="controls">
             <div class="control-row">
-                <label>Quality: <strong id="qualityLabel">60% - Medium</strong></label>
+                <label for="qualitySlider">Quality: <strong id="qualityLabel">60% - Medium</strong></label>
                 <div class="slider-container">
                     <span>Max</span>
-                    <input type="range" id="qualitySlider" min="1" max="100" value="60">
+                    <input type="range" id="qualitySlider" min="1" max="100" value="60" aria-label="Compression quality slider">
                     <span>Best</span>
-                    <span class="quality-badge" id="qualityValue">60%</span>
+                    <span class="quality-badge" id="qualityValue" aria-live="polite">60%</span>
                 </div>
             </div>
             <div class="control-row">
-                <label>Format:</label>
-                <select id="outputFormat">
+                <label for="outputFormat">Format:</label>
+                <select id="outputFormat" aria-label="Output format selection">
                     <option value="auto">Auto (Recommended)</option>
                     <option value="image/webp">WebP (Max Compression)</option>
                     <option value="image/jpeg">JPEG (Photos)</option>
                     <option value="image/png">PNG (Graphics)</option>
                 </select>
-                <div class="warning-msg" id="formatWarning">⚠️ Converting JPG to PNG will INCREASE file size!</div>
+                <div class="warning-msg" id="formatWarning" role="alert">⚠️ Converting JPG to PNG will INCREASE file size!</div>
             </div>
         </div>
 
         <div class="button-group">
-            <button class="btn-compress" id="compressBtn" disabled>🗜️ Compress Images</button>
-            <button class="btn-download" id="downloadBtn" style="display:none;">⬇ Download</button>
-            <button class="btn-reset" id="resetBtn">🔄 Reset</button>
+            <button class="btn-compress" id="compressBtn" disabled aria-label="Compress uploaded images">🗜️ Compress Images</button>
+            <button class="btn-download" id="downloadBtn" style="display:none;" aria-label="Download compressed images">⬇ Download</button>
+            <button class="btn-reset" id="resetBtn" aria-label="Reset and clear all images">🔄 Reset</button>
         </div>
 
-        <div class="result-area" id="resultArea">
+        <div class="result-area" id="resultArea" aria-live="polite">
             <div id="resultsContainer"></div>
         </div>
-    </div>
+    </main>
 
     <!-- SEO Text Section -->
-    <div class="seo-section">
+    <aside class="seo-section" aria-label="About this tool">
         <p>
             <strong>ImageCompress Pro</strong> is the best <strong>free online image compressor</strong> tool. 
             Compress <strong>JPEG</strong>, <strong>PNG</strong>, <strong>WebP</strong> images instantly. 
             Our <strong>image size reducer</strong> works completely in your browser - no upload needed.
             Try the fastest <strong>online image compression</strong> tool today.
         </p>
-    </div>
+    </aside>
 
     <!-- FAQ Section -->
-    <div class="faq-section">
+    <section class="faq-section" aria-label="Frequently Asked Questions">
         <h2>Frequently Asked Questions</h2>
         
         <div class="faq-item">
@@ -238,7 +246,7 @@
             <h3>What formats are supported?</h3>
             <p>JPEG, PNG, WebP, GIF, BMP, and TIFF. You can compress and convert between formats.</p>
         </div>
-    </div>
+    </section>
 
     <script>
         var uploadArea = document.getElementById('uploadArea');
@@ -259,6 +267,14 @@
 
         uploadArea.addEventListener('click', function() {
             fileInput.click();
+        });
+
+        // Keyboard accessibility for upload area
+        uploadArea.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
         });
 
         fileInput.addEventListener('change', function(e) {
@@ -350,7 +366,7 @@
                 };
                 reader.readAsDataURL(file);
 
-                html += '<div class="image-card" id="card-' + index + '">';
+                html += '<div class="image-card" id="card-' + index + '" role="region" aria-label="Image ' + (index + 1) + '">';
                 html += '<h3>📄 ' + file.name + '</h3>';
                 html += '<div class="details-grid">';
                 html += '<div class="detail-item"><div class="label">Format</div><div class="value img-format">Loading...</div></div>';
@@ -359,7 +375,7 @@
                 html += '<div class="detail-item"><div class="label">File Size</div><div class="value img-filesize">Loading...</div></div>';
                 html += '</div>';
                 html += '<div class="comparison-row">';
-                html += '<div class="compare-box"><h4 class="label-before">📷 Original</h4><img class="preview-img" src="" alt="Original" style="background:#eee;min-height:150px;"><div class="compare-info">Waiting...</div></div>';
+                html += '<div class="compare-box"><h4 class="label-before">📷 Original</h4><img class="preview-img" src="" alt="Original image ' + (index + 1) + '" style="background:#eee;min-height:150px;"><div class="compare-info">Waiting...</div></div>';
                 html += '<div class="compare-box" id="after-box-' + index + '"><h4 class="label-after">✨ Compressed</h4><div style="padding:40px;color:#999;border:2px dashed #ddd;border-radius:10px;">Click Compress</div></div>';
                 html += '</div></div>';
             });
@@ -499,7 +515,7 @@
                     '<br><span style="color:#c62828;font-weight:bold;">⚠️ Could not reduce further</span>' : '';
 
                 afterBox.innerHTML = '<h4 class="label-after">✨ Compressed</h4>' +
-                    '<img src="' + e.target.result + '" alt="Compressed" style="max-width:100%;max-height:250px;border-radius:10px;border:2px solid #e0e0e0;">' +
+                    '<img src="' + e.target.result + '" alt="Compressed image" style="max-width:100%;max-height:250px;border-radius:10px;border:2px solid #e0e0e0;">' +
                     '<div class="compare-info">' +
                     result.dimensions + '<br>' +
                     formatFileSize(result.compressedSize) + '<br>' +
