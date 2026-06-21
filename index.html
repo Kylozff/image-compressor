@@ -26,7 +26,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
-            max-width: 900px;
+            max-width: 1000px;
             width: 100%;
         }
 
@@ -150,7 +150,22 @@
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 1em;
-            width: 220px;
+            width: 280px;
+        }
+
+        .warning-message {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            color: #856404;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none;
+        }
+
+        .warning-message.show {
+            display: block;
         }
 
         .max-size-control {
@@ -158,6 +173,7 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .max-size-control label {
@@ -237,7 +253,42 @@
             transform: translateY(-2px);
         }
 
-        /* Before/After Comparison Styles */
+        /* Image Details Cards */
+        .image-details-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .detail-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .detail-card .detail-label {
+            font-size: 0.75em;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
+
+        .detail-card .detail-value {
+            font-size: 1.1em;
+            font-weight: 700;
+            color: #333;
+        }
+
+        .detail-card.format-jpeg { border-left: 4px solid #FF9800; }
+        .detail-card.format-png { border-left: 4px solid #4CAF50; }
+        .detail-card.format-webp { border-left: 4px solid #2196F3; }
+        .detail-card.format-gif { border-left: 4px solid #9C27B0; }
+        .detail-card.format-bmp { border-left: 4px solid #607D8B; }
+
         .preview-area {
             margin-top: 30px;
             display: none;
@@ -260,6 +311,8 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .comparison-header h3 {
@@ -312,11 +365,11 @@
 
         .size-reduction {
             display: inline-block;
-            padding: 5px 12px;
-            border-radius: 15px;
+            padding: 8px 15px;
+            border-radius: 20px;
             font-weight: bold;
-            font-size: 0.85em;
-            margin-top: 8px;
+            font-size: 0.9em;
+            margin-top: 10px;
         }
 
         .size-reduction.good {
@@ -338,15 +391,6 @@
             font-weight: 600;
             color: #333;
             word-break: break-all;
-        }
-
-        .vs-divider {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #999;
-            font-size: 1.2em;
         }
 
         .progress-bar {
@@ -392,6 +436,16 @@
             margin-bottom: 5px;
         }
 
+        .image-count-badge {
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
         @media (max-width: 768px) {
             .image-comparison {
                 grid-template-columns: 1fr;
@@ -404,13 +458,17 @@
             .button-group {
                 flex-direction: column;
             }
+
+            .image-details-cards {
+                grid-template-columns: 1fr 1fr;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>🗜️ ImageCompress Pro</h1>
-        <p class="subtitle">Upload Image → See Before & After → Download Compressed</p>
+        <p class="subtitle">Upload Image → See Details & Compare → Download Compressed</p>
 
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📁</div>
@@ -433,11 +491,14 @@
             <div class="format-select">
                 <label>Output Format:</label>
                 <select id="outputFormat">
-                    <option value="auto">Auto (Keep Original)</option>
-                    <option value="image/jpeg">JPEG (Best for photos)</option>
-                    <option value="image/webp">WebP (Best compression)</option>
-                    <option value="image/png">PNG (Best for graphics)</option>
+                    <option value="auto">Auto (Smart Choice - Best Size)</option>
+                    <option value="image/webp">WebP (Maximum Compression)</option>
+                    <option value="image/jpeg">JPEG (Good for Photos)</option>
+                    <option value="image/png">PNG (Only for Graphics/Transparency)</option>
                 </select>
+                <div class="warning-message" id="formatWarning">
+                    ⚠️ Warning: Converting photos to PNG will INCREASE file size! Use JPEG or WebP instead.
+                </div>
             </div>
 
             <div class="max-size-control">
@@ -451,7 +512,7 @@
         </div>
 
         <div class="button-group">
-            <button class="compress-btn" id="compressBtn" disabled>Compress Images</button>
+            <button class="compress-btn" id="compressBtn" disabled>🗜️ Compress Images</button>
             <button class="download-btn" id="downloadBtn" style="display:none;">⬇ Download All Compressed</button>
             <button class="reset-btn" id="resetBtn">🔄 Reset</button>
         </div>
@@ -465,12 +526,13 @@
         </div>
 
         <div class="compression-tips" id="compressionTips" style="display:none;">
-            <h4>💡 Compression Tips:</h4>
+            <h4>💡 Best Compression Tips:</h4>
             <ul>
-                <li>Use <strong>WebP format</strong> for maximum compression (up to 90% smaller)</li>
-                <li>Lower quality settings = smaller file size</li>
+                <li>For <strong>photos (JPG)</strong>: Use WebP or JPEG format - Never PNG</li>
+                <li>For <strong>graphics (PNG)</strong>: Keep as PNG or use WebP</li>
+                <li>WebP gives <strong>best compression</strong> for all image types</li>
                 <li>Set a <strong>target max size</strong> for precise control</li>
-                <li>Large images (4000px+) will be automatically resized</li>
+                <li>Auto mode will smartly choose the best format</li>
             </ul>
         </div>
     </div>
@@ -480,6 +542,7 @@
             constructor() {
                 this.files = [];
                 this.compressedFiles = [];
+                this.imageMetadata = [];
                 this.init();
             }
 
@@ -494,6 +557,7 @@
                 this.qualityLabel = document.getElementById('qualityLabel');
                 this.maxSizeInput = document.getElementById('maxSizeInput');
                 this.outputFormat = document.getElementById('outputFormat');
+                this.formatWarning = document.getElementById('formatWarning');
                 this.previewArea = document.getElementById('previewArea');
                 this.comparisonContainer = document.getElementById('comparisonContainer');
                 this.progressBar = document.getElementById('progressBar');
@@ -538,12 +602,16 @@
                     }
                 });
 
+                this.outputFormat.addEventListener('change', () => {
+                    this.checkFormatWarning();
+                });
+
                 this.compressBtn.addEventListener('click', () => this.compressImages());
                 this.downloadBtn.addEventListener('click', () => this.downloadAll());
                 this.resetBtn.addEventListener('click', () => this.reset());
             }
 
-            handleFiles(fileList) {
+            async handleFiles(fileList) {
                 this.files = Array.from(fileList).filter(file => file.type.startsWith('image/'));
                 
                 if (this.files.length === 0) {
@@ -554,30 +622,150 @@
                 this.compressBtn.disabled = false;
                 this.compressBtn.textContent = `🗜️ Compress ${this.files.length} Image${this.files.length > 1 ? 's' : ''}`;
                 this.compressionTips.style.display = 'block';
+                this.checkFormatWarning();
+                
+                // Extract metadata for all images
+                await this.extractImageMetadata();
                 this.showBeforePreview();
+            }
+
+            async extractImageMetadata() {
+                this.imageMetadata = [];
+                
+                for (let file of this.files) {
+                    const metadata = await this.getImageDetails(file);
+                    this.imageMetadata.push(metadata);
+                }
+            }
+
+            getImageDetails(file) {
+                return new Promise((resolve) => {
+                    const img = new Image();
+                    const reader = new FileReader();
+                    
+                    reader.onload = (e) => {
+                        img.onload = () => {
+                            const format = file.type.split('/')[1].toUpperCase();
+                            const extension = file.name.split('.').pop().toUpperCase();
+                            
+                            resolve({
+                                name: file.name,
+                                size: file.size,
+                                width: img.width,
+                                height: img.height,
+                                resolution: `${img.width} × ${img.height}`,
+                                megapixels: ((img.width * img.height) / 1000000).toFixed(1),
+                                format: format,
+                                extension: extension,
+                                aspectRatio: this.calculateAspectRatio(img.width, img.height),
+                                type: file.type,
+                                lastModified: new Date(file.lastModified).toLocaleDateString(),
+                                dataURL: e.target.result
+                            });
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            calculateAspectRatio(width, height) {
+                const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+                const divisor = gcd(width, height);
+                const ratioW = width / divisor;
+                const ratioH = height / divisor;
+                
+                // Common aspect ratios
+                const commonRatios = {
+                    '1:1': ratioW === ratioH,
+                    '4:3': Math.abs(ratioW/ratioH - 4/3) < 0.1,
+                    '16:9': Math.abs(ratioW/ratioH - 16/9) < 0.1,
+                    '3:2': Math.abs(ratioW/ratioH - 3/2) < 0.1,
+                    '2:3': Math.abs(ratioW/ratioH - 2/3) < 0.1,
+                };
+                
+                for (let [name, match] of Object.entries(commonRatios)) {
+                    if (match) return name;
+                }
+                return `${ratioW}:${ratioH}`;
+            }
+
+            getFormatClass(format) {
+                const formatMap = {
+                    'JPEG': 'format-jpeg',
+                    'JPG': 'format-jpeg',
+                    'PNG': 'format-png',
+                    'WEBP': 'format-webp',
+                    'GIF': 'format-gif',
+                    'BMP': 'format-bmp',
+                };
+                return formatMap[format] || '';
+            }
+
+            checkFormatWarning() {
+                const hasJPG = this.files.some(file => 
+                    file.type === 'image/jpeg' || file.type === 'image/jpg');
+                const formatSelected = this.outputFormat.value;
+                
+                if (hasJPG && formatSelected === 'image/png') {
+                    this.formatWarning.classList.add('show');
+                    this.formatWarning.textContent = '⚠️ WARNING: Converting JPG to PNG will massively INCREASE file size! Use JPEG or WebP instead.';
+                } else if (formatSelected === 'image/png') {
+                    this.formatWarning.classList.add('show');
+                    this.formatWarning.textContent = '⚠️ Note: PNG is lossless format. Use only for images with transparency or graphics.';
+                } else {
+                    this.formatWarning.classList.remove('show');
+                }
             }
 
             showBeforePreview() {
                 this.previewArea.classList.add('active');
-                this.comparisonContainer.innerHTML = '<h2 style="text-align:center; color:#666; margin-bottom:20px;">📸 Original Images (Click Compress to see comparison)</h2>';
                 
-                this.files.forEach((file, index) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const comparisonDiv = document.createElement('div');
-                        comparisonDiv.className = 'comparison-container';
-                        comparisonDiv.id = `image-${index}`;
-                        comparisonDiv.innerHTML = `
+                // Image count badge
+                let html = `<div class="image-count-badge">📸 ${this.files.length} Image${this.files.length > 1 ? 's' : ''} Uploaded</div>`;
+                html += '<h2 style="text-align:center; color:#666; margin-bottom:20px;">📋 Image Details (Click Compress to reduce size)</h2>';
+                
+                this.imageMetadata.forEach((meta, index) => {
+                    html += `
+                        <div class="comparison-container" id="image-${index}">
                             <div class="comparison-header">
-                                <h3><span class="file-name">📄 ${file.name}</span></h3>
-                                <span style="color:#666;">Original Size: <strong>${this.formatFileSize(file.size)}</strong></span>
+                                <h3><span class="file-name">📄 ${meta.name}</span></h3>
                             </div>
-                            <div class="image-comparison">
+                            
+                            <!-- IMAGE DETAILS CARDS -->
+                            <div class="image-details-cards">
+                                <div class="detail-card ${this.getFormatClass(meta.format)}">
+                                    <div class="detail-label">📐 Format</div>
+                                    <div class="detail-value">${meta.format}</div>
+                                </div>
+                                <div class="detail-card">
+                                    <div class="detail-label">📏 Resolution</div>
+                                    <div class="detail-value">${meta.resolution}</div>
+                                </div>
+                                <div class="detail-card">
+                                    <div class="detail-label">📊 Megapixels</div>
+                                    <div class="detail-value">${meta.megapixels} MP</div>
+                                </div>
+                                <div class="detail-card">
+                                    <div class="detail-label">📁 File Size</div>
+                                    <div class="detail-value">${this.formatFileSize(meta.size)}</div>
+                                </div>
+                                <div class="detail-card">
+                                    <div class="detail-label">📐 Aspect Ratio</div>
+                                    <div class="detail-value">${meta.aspectRatio}</div>
+                                </div>
+                                <div class="detail-card">
+                                    <div class="detail-label">📅 Last Modified</div>
+                                    <div class="detail-value">${meta.lastModified}</div>
+                                </div>
+                            </div>
+                            
+                            <div class="image-comparison" style="margin-top: 20px;">
                                 <div class="image-box">
                                     <h4 class="before-label">📷 BEFORE (Original)</h4>
-                                    <img src="${e.target.result}" alt="Original image">
+                                    <img src="${meta.dataURL}" alt="Original image">
                                     <div class="image-details">
-                                        Size: <strong>${this.formatFileSize(file.size)}</strong><br>
+                                        <strong>${meta.resolution}</strong> | ${this.formatFileSize(meta.size)}<br>
                                         <span style="color:#999;">Waiting for compression...</span>
                                     </div>
                                 </div>
@@ -588,11 +776,11 @@
                                     </div>
                                 </div>
                             </div>
-                        `;
-                        this.comparisonContainer.appendChild(comparisonDiv);
-                    };
-                    reader.readAsDataURL(file);
+                        </div>
+                    `;
                 });
+                
+                this.comparisonContainer.innerHTML = html;
             }
 
             async compressImages() {
@@ -605,11 +793,9 @@
 
                 const quality = this.qualitySlider.value / 100;
                 const maxSize = this.getMaxSizeInBytes();
-                const format = this.outputFormat.value;
 
                 for (let i = 0; i < this.files.length; i++) {
                     try {
-                        // Update after-box to show compressing status
                         const afterBox = document.getElementById(`after-box-${i}`);
                         if (afterBox) {
                             afterBox.innerHTML = `
@@ -620,10 +806,8 @@
                             `;
                         }
 
-                        const compressed = await this.compressImageAdvanced(this.files[i], quality, maxSize, format);
+                        const compressed = await this.compressImageSmart(this.files[i], quality, maxSize);
                         this.compressedFiles.push(compressed);
-                        
-                        // Update the after-box with compressed image
                         this.updateAfterPreview(i, compressed);
                         
                         const progress = ((i + 1) / this.files.length) * 100;
@@ -644,49 +828,26 @@
                 }, 3000);
             }
 
-            updateAfterPreview(index, compressed) {
-                const afterBox = document.getElementById(`after-box-${index}`);
-                if (!afterBox) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const ratio = ((1 - compressed.compressedSize / compressed.originalSize) * 100).toFixed(1);
-                    
-                    let ratioClass = 'good';
-                    let ratioEmoji = '🎉';
-                    if (ratio < 20) {
-                        ratioClass = 'bad';
-                        ratioEmoji = '⚠️';
-                    } else if (ratio < 50) {
-                        ratioClass = 'medium';
-                        ratioEmoji = '👍';
-                    }
-
-                    afterBox.innerHTML = `
-                        <h4 class="after-label">✨ AFTER (Compressed)</h4>
-                        <img src="${e.target.result}" alt="Compressed image">
-                        <div class="image-details">
-                            Size: <strong>${this.formatFileSize(compressed.compressedSize)}</strong><br>
-                            <span style="color:#999;">Dimensions: ${compressed.dimensions}</span><br>
-                            <span style="color:#999;">Format: ${compressed.format.split('/')[1].toUpperCase()}</span><br>
-                            <div class="size-reduction ${ratioClass}">
-                                ${ratioEmoji} ${ratio > 0 ? '↓' : '↑'} ${Math.abs(ratio)}% ${ratio > 0 ? 'Smaller' : 'Larger'}
-                            </div>
-                        </div>
-                    `;
-                };
-                reader.readAsDataURL(compressed.blob);
-            }
-
-            async compressImageAdvanced(file, quality, maxSize, outputFormat) {
+            async compressImageSmart(file, quality, maxSize) {
                 const img = await this.loadImage(file);
                 
-                let format = outputFormat;
+                let format = this.outputFormat.value;
+                
                 if (format === 'auto') {
-                    format = file.type;
-                    if (format === 'image/png' && !(await this.hasTransparency(img))) {
-                        format = 'image/jpeg';
+                    if (file.type === 'image/png' && await this.hasTransparency(img)) {
+                        format = 'image/png';
+                    } else if (file.type === 'image/png') {
+                        format = 'image/webp';
+                    } else if (file.type === 'image/jpeg') {
+                        format = 'image/webp';
+                    } else {
+                        format = 'image/webp';
                     }
+                }
+                
+                if ((file.type === 'image/jpeg' || file.type === 'image/jpg') && format === 'image/png') {
+                    console.warn('⚠️ Preventing JPEG→PNG conversion. Using WebP instead.');
+                    format = 'image/webp';
                 }
 
                 let { width, height } = this.calculateOptimalSize(img, maxSize);
@@ -703,13 +864,24 @@
 
                 let bestBlob = await this.canvasToBlob(canvas, format, quality);
                 
+                if (bestBlob.size >= file.size && quality > 0.1) {
+                    bestBlob = await this.canvasToBlob(canvas, format, quality * 0.5);
+                }
+                
                 if (maxSize && bestBlob.size > maxSize) {
                     bestBlob = await this.targetSizeCompression(canvas, format, maxSize);
-                } else if (!maxSize && quality > 0.1) {
-                    const aggressiveBlob = await this.canvasToBlob(canvas, format, quality * 0.5);
-                    if (aggressiveBlob.size < bestBlob.size * 0.8) {
-                        bestBlob = aggressiveBlob;
-                    }
+                }
+                
+                if (bestBlob.size >= file.size) {
+                    return {
+                        blob: file,
+                        name: file.name,
+                        originalSize: file.size,
+                        compressedSize: file.size,
+                        format: file.type,
+                        dimensions: `${img.width}x${img.height}`,
+                        noCompression: true
+                    };
                 }
 
                 return {
@@ -720,6 +892,43 @@
                     format: format,
                     dimensions: `${width}x${height}`
                 };
+            }
+
+            updateAfterPreview(index, compressed) {
+                const afterBox = document.getElementById(`after-box-${index}`);
+                if (!afterBox) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const ratio = ((1 - compressed.compressedSize / compressed.originalSize) * 100).toFixed(1);
+                    
+                    let ratioClass = 'good';
+                    let ratioEmoji = '🎉';
+                    if (ratio <= 0) {
+                        ratioClass = 'bad';
+                        ratioEmoji = '⚠️';
+                    } else if (ratio < 50) {
+                        ratioClass = 'medium';
+                        ratioEmoji = '👍';
+                    }
+
+                    const noCompressionMsg = compressed.noCompression ? 
+                        '<br><span style="color:#c62828; font-weight:bold;">⚠️ Could not compress further. Keeping original.</span>' : '';
+
+                    afterBox.innerHTML = `
+                        <h4 class="after-label">✨ AFTER (Compressed)</h4>
+                        <img src="${e.target.result}" alt="Compressed image">
+                        <div class="image-details">
+                            <strong>${compressed.dimensions}</strong> | ${this.formatFileSize(compressed.compressedSize)}<br>
+                            <span style="color:#999;">Format: ${compressed.format.split('/')[1].toUpperCase()}</span>
+                            ${noCompressionMsg}
+                            <div class="size-reduction ${ratioClass}">
+                                ${ratioEmoji} ${ratio > 0 ? '↓' : '↑'} ${Math.abs(ratio)}% ${ratio > 0 ? 'Smaller' : 'Larger'}
+                            </div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(compressed.blob);
             }
 
             calculateOptimalSize(img, maxSize) {
@@ -852,25 +1061,4 @@
 
             reset() {
                 this.files = [];
-                this.compressedFiles = [];
-                this.fileInput.value = '';
-                this.compressBtn.disabled = true;
-                this.compressBtn.textContent = 'Compress Images';
-                this.downloadBtn.style.display = 'none';
-                this.previewArea.classList.remove('active');
-                this.comparisonContainer.innerHTML = '';
-                this.progressBar.classList.remove('active');
-                this.progressFill.style.width = '0%';
-                this.compressionTips.style.display = 'none';
-                this.qualitySlider.value = 60;
-                this.qualityValue.textContent = '60%';
-                this.qualityLabel.textContent = 'Medium (60%)';
-                this.maxSizeInput.value = '';
-                this.outputFormat.value = 'auto';
-            }
-        }
-
-        new ImageCompressor();
-    </script>
-</body>
-</html>
+                this.compressedFiles
