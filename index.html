@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FreeImageCompress - Compress Images Online</title>
+    <title>FreeImageCompress - Compare Before & After</title>
     <style>
         * {
             margin: 0;
@@ -26,7 +26,7 @@
             border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             padding: 40px;
-            max-width: 800px;
+            max-width: 900px;
             width: 100%;
         }
 
@@ -130,8 +130,27 @@
             padding: 5px 15px;
             border-radius: 20px;
             font-weight: bold;
-            min-width: 60px;
+            min-width: 65px;
             text-align: center;
+        }
+
+        .format-select {
+            margin-bottom: 20px;
+        }
+
+        .format-select label {
+            display: block;
+            margin-bottom: 10px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .format-select select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            width: 220px;
         }
 
         .max-size-control {
@@ -139,6 +158,11 @@
             align-items: center;
             gap: 10px;
             margin-bottom: 20px;
+        }
+
+        .max-size-control label {
+            color: #333;
+            font-weight: 600;
         }
 
         .max-size-control input {
@@ -213,6 +237,7 @@
             transform: translateY(-2px);
         }
 
+        /* Before/After Comparison Styles */
         .preview-area {
             margin-top: 30px;
             display: none;
@@ -222,43 +247,106 @@
             display: block;
         }
 
-        .image-preview {
-            display: flex;
-            gap: 20px;
-            align-items: start;
+        .comparison-container {
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: #fafafa;
         }
 
-        .preview-box {
-            flex: 1;
+        .comparison-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .comparison-header h3 {
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .image-comparison {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .image-box {
             text-align: center;
         }
 
-        .preview-box h3 {
+        .image-box h4 {
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
             margin-bottom: 15px;
-            color: #333;
+            font-size: 0.9em;
         }
 
-        .preview-box img {
+        .before-label {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .after-label {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .image-box img {
             max-width: 100%;
             max-height: 300px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border: 2px solid #e0e0e0;
         }
 
-        .file-info {
+        .image-details {
             margin-top: 10px;
+            font-size: 0.85em;
             color: #666;
-            font-size: 0.9em;
+            line-height: 1.6;
         }
 
-        .compression-ratio {
-            background: #4CAF50;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.9em;
+        .size-reduction {
             display: inline-block;
-            margin-top: 10px;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-weight: bold;
+            font-size: 0.85em;
+            margin-top: 8px;
+        }
+
+        .size-reduction.good {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .size-reduction.bad {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .size-reduction.medium {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #333;
+            word-break: break-all;
+        }
+
+        .vs-divider {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #999;
+            font-size: 1.2em;
         }
 
         .progress-bar {
@@ -282,7 +370,33 @@
             transition: width 0.3s ease;
         }
 
-        @media (max-width: 600px) {
+        .compression-tips {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+
+        .compression-tips h4 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .compression-tips ul {
+            margin-left: 20px;
+            color: #856404;
+        }
+
+        .compression-tips li {
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .image-comparison {
+                grid-template-columns: 1fr;
+            }
+            
             .container {
                 padding: 20px;
             }
@@ -290,17 +404,13 @@
             .button-group {
                 flex-direction: column;
             }
-            
-            .image-preview {
-                flex-direction: column;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🗜️ ImageCompress</h1>
-        <p class="subtitle">Free Online Image Compression Tool</p>
+        <h1>🗜️ ImageCompress Pro</h1>
+        <p class="subtitle">Upload Image → See Before & After → Download Compressed</p>
 
         <div class="upload-area" id="uploadArea">
             <div class="upload-icon">📁</div>
@@ -311,18 +421,28 @@
 
         <div class="controls">
             <div class="quality-control">
-                <label>Compression Quality: <span id="qualityLabel">80%</span></label>
+                <label>Compression Level: <span id="qualityLabel">Medium (60%)</span></label>
                 <div class="slider-container">
-                    <span>Low</span>
-                    <input type="range" id="qualitySlider" min="1" max="100" value="80">
-                    <span>High</span>
-                    <div class="quality-value" id="qualityValue">80</div>
+                    <span>Maximum</span>
+                    <input type="range" id="qualitySlider" min="1" max="100" value="60">
+                    <span>Best</span>
+                    <div class="quality-value" id="qualityValue">60%</div>
                 </div>
             </div>
 
+            <div class="format-select">
+                <label>Output Format:</label>
+                <select id="outputFormat">
+                    <option value="auto">Auto (Keep Original)</option>
+                    <option value="image/jpeg">JPEG (Best for photos)</option>
+                    <option value="image/webp">WebP (Best compression)</option>
+                    <option value="image/png">PNG (Best for graphics)</option>
+                </select>
+            </div>
+
             <div class="max-size-control">
-                <label>Max File Size (optional):</label>
-                <input type="number" id="maxSizeInput" placeholder="e.g., 100" min="1">
+                <label>Target Max Size (optional):</label>
+                <input type="number" id="maxSizeInput" placeholder="e.g., 500" min="1">
                 <select id="sizeUnit">
                     <option value="KB">KB</option>
                     <option value="MB">MB</option>
@@ -332,8 +452,8 @@
 
         <div class="button-group">
             <button class="compress-btn" id="compressBtn" disabled>Compress Images</button>
-            <button class="download-btn" id="downloadBtn" style="display:none;">Download All</button>
-            <button class="reset-btn" id="resetBtn">Reset</button>
+            <button class="download-btn" id="downloadBtn" style="display:none;">⬇ Download All Compressed</button>
+            <button class="reset-btn" id="resetBtn">🔄 Reset</button>
         </div>
 
         <div class="progress-bar" id="progressBar">
@@ -341,7 +461,17 @@
         </div>
 
         <div class="preview-area" id="previewArea">
-            <div class="image-preview" id="imagePreview"></div>
+            <div id="comparisonContainer"></div>
+        </div>
+
+        <div class="compression-tips" id="compressionTips" style="display:none;">
+            <h4>💡 Compression Tips:</h4>
+            <ul>
+                <li>Use <strong>WebP format</strong> for maximum compression (up to 90% smaller)</li>
+                <li>Lower quality settings = smaller file size</li>
+                <li>Set a <strong>target max size</strong> for precise control</li>
+                <li>Large images (4000px+) will be automatically resized</li>
+            </ul>
         </div>
     </div>
 
@@ -363,22 +493,21 @@
                 this.qualityValue = document.getElementById('qualityValue');
                 this.qualityLabel = document.getElementById('qualityLabel');
                 this.maxSizeInput = document.getElementById('maxSizeInput');
+                this.outputFormat = document.getElementById('outputFormat');
                 this.previewArea = document.getElementById('previewArea');
-                this.imagePreview = document.getElementById('imagePreview');
+                this.comparisonContainer = document.getElementById('comparisonContainer');
                 this.progressBar = document.getElementById('progressBar');
                 this.progressFill = document.getElementById('progressFill');
+                this.compressionTips = document.getElementById('compressionTips');
 
                 this.setupEventListeners();
             }
 
             setupEventListeners() {
-                // Upload area click
                 this.uploadArea.addEventListener('click', () => this.fileInput.click());
                 
-                // File input change
                 this.fileInput.addEventListener('change', (e) => this.handleFiles(e.target.files));
                 
-                // Drag and drop
                 this.uploadArea.addEventListener('dragover', (e) => {
                     e.preventDefault();
                     this.uploadArea.classList.add('dragover');
@@ -394,19 +523,23 @@
                     this.handleFiles(e.dataTransfer.files);
                 });
 
-                // Quality slider
                 this.qualitySlider.addEventListener('input', () => {
-                    this.qualityValue.textContent = this.qualitySlider.value;
-                    this.qualityLabel.textContent = this.qualitySlider.value + '%';
+                    const val = this.qualitySlider.value;
+                    this.qualityValue.textContent = val + '%';
+                    
+                    if (val <= 30) {
+                        this.qualityLabel.textContent = 'Maximum Compression (' + val + '%)';
+                    } else if (val <= 60) {
+                        this.qualityLabel.textContent = 'Medium (' + val + '%)';
+                    } else if (val <= 85) {
+                        this.qualityLabel.textContent = 'Good Quality (' + val + '%)';
+                    } else {
+                        this.qualityLabel.textContent = 'Best Quality (' + val + '%)';
+                    }
                 });
 
-                // Compress button
                 this.compressBtn.addEventListener('click', () => this.compressImages());
-                
-                // Download button
                 this.downloadBtn.addEventListener('click', () => this.downloadAll());
-                
-                // Reset button
                 this.resetBtn.addEventListener('click', () => this.reset());
             }
 
@@ -419,30 +552,44 @@
                 }
 
                 this.compressBtn.disabled = false;
-                this.compressBtn.textContent = `Compress ${this.files.length} Image${this.files.length > 1 ? 's' : ''}`;
-                
-                // Show preview of original images
-                this.showOriginalPreview();
+                this.compressBtn.textContent = `🗜️ Compress ${this.files.length} Image${this.files.length > 1 ? 's' : ''}`;
+                this.compressionTips.style.display = 'block';
+                this.showBeforePreview();
             }
 
-            showOriginalPreview() {
+            showBeforePreview() {
                 this.previewArea.classList.add('active');
-                this.imagePreview.innerHTML = '';
+                this.comparisonContainer.innerHTML = '<h2 style="text-align:center; color:#666; margin-bottom:20px;">📸 Original Images (Click Compress to see comparison)</h2>';
                 
                 this.files.forEach((file, index) => {
                     const reader = new FileReader();
                     reader.onload = (e) => {
-                        const previewBox = document.createElement('div');
-                        previewBox.className = 'preview-box';
-                        previewBox.innerHTML = `
-                            <h3>Original ${index + 1}</h3>
-                            <img src="${e.target.result}" alt="Original ${index + 1}">
-                            <div class="file-info">
-                                ${file.name}<br>
-                                Size: ${this.formatFileSize(file.size)}
+                        const comparisonDiv = document.createElement('div');
+                        comparisonDiv.className = 'comparison-container';
+                        comparisonDiv.id = `image-${index}`;
+                        comparisonDiv.innerHTML = `
+                            <div class="comparison-header">
+                                <h3><span class="file-name">📄 ${file.name}</span></h3>
+                                <span style="color:#666;">Original Size: <strong>${this.formatFileSize(file.size)}</strong></span>
+                            </div>
+                            <div class="image-comparison">
+                                <div class="image-box">
+                                    <h4 class="before-label">📷 BEFORE (Original)</h4>
+                                    <img src="${e.target.result}" alt="Original image">
+                                    <div class="image-details">
+                                        Size: <strong>${this.formatFileSize(file.size)}</strong><br>
+                                        <span style="color:#999;">Waiting for compression...</span>
+                                    </div>
+                                </div>
+                                <div class="image-box" id="after-box-${index}">
+                                    <h4 class="after-label">✨ AFTER (Compressed)</h4>
+                                    <div style="padding:50px; color:#999; border:2px dashed #ddd; border-radius:10px;">
+                                        Click "Compress Images" to see result
+                                    </div>
+                                </div>
                             </div>
                         `;
-                        this.imagePreview.appendChild(previewBox);
+                        this.comparisonContainer.appendChild(comparisonDiv);
                     };
                     reader.readAsDataURL(file);
                 });
@@ -452,84 +599,181 @@
                 if (this.files.length === 0) return;
 
                 this.compressBtn.disabled = true;
-                this.compressBtn.textContent = 'Compressing...';
+                this.compressBtn.textContent = '⏳ Compressing...';
                 this.progressBar.classList.add('active');
                 this.compressedFiles = [];
 
                 const quality = this.qualitySlider.value / 100;
                 const maxSize = this.getMaxSizeInBytes();
+                const format = this.outputFormat.value;
 
                 for (let i = 0; i < this.files.length; i++) {
                     try {
-                        const compressed = await this.compressImage(this.files[i], quality, maxSize);
+                        // Update after-box to show compressing status
+                        const afterBox = document.getElementById(`after-box-${i}`);
+                        if (afterBox) {
+                            afterBox.innerHTML = `
+                                <h4 class="after-label">✨ AFTER (Compressed)</h4>
+                                <div style="padding:50px; color:#667eea; border:2px dashed #667eea; border-radius:10px;">
+                                    ⏳ Compressing...
+                                </div>
+                            `;
+                        }
+
+                        const compressed = await this.compressImageAdvanced(this.files[i], quality, maxSize, format);
                         this.compressedFiles.push(compressed);
                         
-                        // Update progress
+                        // Update the after-box with compressed image
+                        this.updateAfterPreview(i, compressed);
+                        
                         const progress = ((i + 1) / this.files.length) * 100;
                         this.progressFill.style.width = progress + '%';
                     } catch (error) {
                         console.error('Error compressing image:', error);
-                        alert(`Error compressing ${this.files[i].name}. Skipping...`);
                     }
                 }
 
-                this.showCompressedPreview();
-                this.compressBtn.textContent = 'Compression Complete!';
+                this.compressBtn.textContent = '✅ Done! Compress Again?';
                 this.downloadBtn.style.display = 'block';
                 this.progressBar.classList.remove('active');
+                this.progressFill.style.width = '0%';
                 
                 setTimeout(() => {
                     this.compressBtn.disabled = false;
-                    this.compressBtn.textContent = `Compress ${this.files.length} Image${this.files.length > 1 ? 's' : ''}`;
-                }, 2000);
+                    this.compressBtn.textContent = `🗜️ Compress ${this.files.length} Image${this.files.length > 1 ? 's' : ''}`;
+                }, 3000);
             }
 
-            async compressImage(file, quality, maxSize) {
-                // Create canvas for compression
+            updateAfterPreview(index, compressed) {
+                const afterBox = document.getElementById(`after-box-${index}`);
+                if (!afterBox) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const ratio = ((1 - compressed.compressedSize / compressed.originalSize) * 100).toFixed(1);
+                    
+                    let ratioClass = 'good';
+                    let ratioEmoji = '🎉';
+                    if (ratio < 20) {
+                        ratioClass = 'bad';
+                        ratioEmoji = '⚠️';
+                    } else if (ratio < 50) {
+                        ratioClass = 'medium';
+                        ratioEmoji = '👍';
+                    }
+
+                    afterBox.innerHTML = `
+                        <h4 class="after-label">✨ AFTER (Compressed)</h4>
+                        <img src="${e.target.result}" alt="Compressed image">
+                        <div class="image-details">
+                            Size: <strong>${this.formatFileSize(compressed.compressedSize)}</strong><br>
+                            <span style="color:#999;">Dimensions: ${compressed.dimensions}</span><br>
+                            <span style="color:#999;">Format: ${compressed.format.split('/')[1].toUpperCase()}</span><br>
+                            <div class="size-reduction ${ratioClass}">
+                                ${ratioEmoji} ${ratio > 0 ? '↓' : '↑'} ${Math.abs(ratio)}% ${ratio > 0 ? 'Smaller' : 'Larger'}
+                            </div>
+                        </div>
+                    `;
+                };
+                reader.readAsDataURL(compressed.blob);
+            }
+
+            async compressImageAdvanced(file, quality, maxSize, outputFormat) {
                 const img = await this.loadImage(file);
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
-
-                // Determine output format
-                let outputFormat = 'image/jpeg';
-                if (file.type === 'image/png' && this.hasTransparency(img)) {
-                    outputFormat = 'image/png';
-                } else if (file.type === 'image/webp') {
-                    outputFormat = 'image/webp';
+                
+                let format = outputFormat;
+                if (format === 'auto') {
+                    format = file.type;
+                    if (format === 'image/png' && !(await this.hasTransparency(img))) {
+                        format = 'image/jpeg';
+                    }
                 }
 
-                // Try compression with quality adjustment
-                let compressedBlob = await this.canvasToBlob(canvas, outputFormat, quality);
+                let { width, height } = this.calculateOptimalSize(img, maxSize);
                 
-                // If max size specified, adjust quality to meet target
-                if (maxSize && compressedBlob.size > maxSize) {
-                    let minQuality = 0.1;
-                    let maxQuality = quality;
-                    
-                    for (let attempt = 0; attempt < 10; attempt++) {
-                        const midQuality = (minQuality + maxQuality) / 2;
-                        compressedBlob = await this.canvasToBlob(canvas, outputFormat, midQuality);
-                        
-                        if (compressedBlob.size <= maxSize) {
-                            minQuality = midQuality;
-                            break;
-                        } else {
-                            maxQuality = midQuality;
-                        }
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                canvas.width = width;
+                canvas.height = height;
+                
+                ctx.imageSmoothingEnabled = true;
+                ctx.imageSmoothingQuality = 'high';
+                ctx.drawImage(img, 0, 0, width, height);
+
+                let bestBlob = await this.canvasToBlob(canvas, format, quality);
+                
+                if (maxSize && bestBlob.size > maxSize) {
+                    bestBlob = await this.targetSizeCompression(canvas, format, maxSize);
+                } else if (!maxSize && quality > 0.1) {
+                    const aggressiveBlob = await this.canvasToBlob(canvas, format, quality * 0.5);
+                    if (aggressiveBlob.size < bestBlob.size * 0.8) {
+                        bestBlob = aggressiveBlob;
                     }
                 }
 
                 return {
-                    blob: compressedBlob,
-                    name: this.getOutputFileName(file),
+                    blob: bestBlob,
+                    name: this.getOutputFileName(file, format),
                     originalSize: file.size,
-                    compressedSize: compressedBlob.size,
-                    format: outputFormat
+                    compressedSize: bestBlob.size,
+                    format: format,
+                    dimensions: `${width}x${height}`
                 };
+            }
+
+            calculateOptimalSize(img, maxSize) {
+                let width = img.width;
+                let height = img.height;
+                const MAX_DIMENSION = 2560;
+                
+                if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+                    if (width > height) {
+                        height = Math.round((height / width) * MAX_DIMENSION);
+                        width = MAX_DIMENSION;
+                    } else {
+                        width = Math.round((width / height) * MAX_DIMENSION);
+                        height = MAX_DIMENSION;
+                    }
+                }
+                
+                if (maxSize && maxSize < 100 * 1024) {
+                    const scaleFactor = 0.7;
+                    width = Math.round(width * scaleFactor);
+                    height = Math.round(height * scaleFactor);
+                }
+                
+                return { width, height };
+            }
+
+            async targetSizeCompression(canvas, format, targetSize) {
+                let minQuality = 0.01;
+                let maxQuality = 1.0;
+                let bestBlob = null;
+                
+                for (let i = 0; i < 15; i++) {
+                    const midQuality = (minQuality + maxQuality) / 2;
+                    const blob = await this.canvasToBlob(canvas, format, midQuality);
+                    
+                    if (blob.size <= targetSize) {
+                        bestBlob = blob;
+                        minQuality = midQuality;
+                    } else {
+                        maxQuality = midQuality;
+                    }
+                }
+                
+                if (bestBlob) return bestBlob;
+                
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+                const scaleFactor = Math.sqrt(targetSize / (await this.canvasToBlob(canvas, format, 0.5)).size);
+                
+                tempCanvas.width = Math.round(canvas.width * Math.min(scaleFactor, 0.8));
+                tempCanvas.height = Math.round(canvas.height * Math.min(scaleFactor, 0.8));
+                tempCtx.drawImage(canvas, 0, 0, tempCanvas.width, tempCanvas.height);
+                
+                return await this.canvasToBlob(tempCanvas, format, 0.3);
             }
 
             loadImage(file) {
@@ -547,12 +791,12 @@
                 });
             }
 
-            hasTransparency(img) {
+            async hasTransparency(img) {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                canvas.width = img.width;
-                canvas.height = img.height;
-                ctx.drawImage(img, 0, 0);
+                canvas.width = Math.min(img.width, 100);
+                canvas.height = Math.min(img.height, 100);
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 
                 const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
                 const data = imageData.data;
@@ -563,9 +807,10 @@
                 return false;
             }
 
-            getOutputFileName(file) {
+            getOutputFileName(file, format) {
                 const name = file.name.replace(/\.[^/.]+$/, '');
-                return `${name}_compressed`;
+                const extension = format.split('/')[1];
+                return `${name}_compressed.${extension}`;
             }
 
             getMaxSizeInBytes() {
@@ -576,44 +821,15 @@
                 return unit === 'MB' ? maxSize * 1024 * 1024 : maxSize * 1024;
             }
 
-            showCompressedPreview() {
-                this.imagePreview.innerHTML = '';
-                
-                this.files.forEach((file, index) => {
-                    const compressed = this.compressedFiles[index];
-                    if (!compressed) return;
-
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const ratio = ((1 - compressed.compressedSize / compressed.originalSize) * 100).toFixed(1);
-                        const previewBox = document.createElement('div');
-                        previewBox.className = 'preview-box';
-                        previewBox.innerHTML = `
-                            <h3>Compressed ${index + 1}</h3>
-                            <img src="${e.target.result}" alt="Compressed ${index + 1}">
-                            <div class="file-info">
-                                Original: ${this.formatFileSize(compressed.originalSize)}<br>
-                                Compressed: ${this.formatFileSize(compressed.compressedSize)}
-                            </div>
-                            <div class="compression-ratio">
-                                ${ratio > 0 ? '↓' : '↑'} ${Math.abs(ratio)}% ${ratio > 0 ? 'smaller' : 'larger'}
-                            </div>
-                        `;
-                        this.imagePreview.appendChild(previewBox);
-                    };
-                    reader.readAsDataURL(compressed.blob);
-                });
-            }
-
             async downloadAll() {
                 if (this.compressedFiles.length === 0) return;
 
                 if (this.compressedFiles.length === 1) {
-                    // Download single file
                     this.downloadFile(this.compressedFiles[0]);
                 } else {
-                    // Download as ZIP
-                    await this.downloadAsZip();
+                    for (let i = 0; i < this.compressedFiles.length; i++) {
+                        setTimeout(() => this.downloadFile(this.compressedFiles[i]), i * 300);
+                    }
                 }
             }
 
@@ -621,18 +837,9 @@
                 const url = URL.createObjectURL(file.blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `${file.name}.${file.format.split('/')[1]}`;
+                a.download = file.name;
                 a.click();
                 URL.revokeObjectURL(url);
-            }
-
-            async downloadAsZip() {
-                // For multiple files, we'll use a simple approach without external libraries
-                // Download files one by one with a slight delay
-                for (let i = 0; i < this.compressedFiles.length; i++) {
-                    setTimeout(() => this.downloadFile(this.compressedFiles[i]), i * 300);
-                }
-                alert('Downloading files one by one. Please allow multiple downloads in your browser settings.');
             }
 
             formatFileSize(bytes) {
@@ -651,17 +858,18 @@
                 this.compressBtn.textContent = 'Compress Images';
                 this.downloadBtn.style.display = 'none';
                 this.previewArea.classList.remove('active');
-                this.imagePreview.innerHTML = '';
+                this.comparisonContainer.innerHTML = '';
                 this.progressBar.classList.remove('active');
                 this.progressFill.style.width = '0%';
-                this.qualitySlider.value = 80;
-                this.qualityValue.textContent = '80';
-                this.qualityLabel.textContent = '80%';
+                this.compressionTips.style.display = 'none';
+                this.qualitySlider.value = 60;
+                this.qualityValue.textContent = '60%';
+                this.qualityLabel.textContent = 'Medium (60%)';
                 this.maxSizeInput.value = '';
+                this.outputFormat.value = 'auto';
             }
         }
 
-        // Initialize the compressor
         new ImageCompressor();
     </script>
 </body>
