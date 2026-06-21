@@ -152,6 +152,9 @@
         .faq-item { max-width: 800px; margin: 0 auto 20px; }
         .faq-item h3 { color: #667eea; margin-bottom: 8px; font-size: 1em; }
         .faq-item p { color: #666; line-height: 1.6; }
+        .footer-links { text-align: center; margin-top: 25px; padding: 15px; font-size: 0.85em; }
+        .footer-links a { color: #667eea; text-decoration: none; margin: 0 10px; }
+        .footer-links a:hover { text-decoration: underline; }
         .sr-only {
             position: absolute;
             width: 1px; height: 1px;
@@ -211,6 +214,13 @@
         <div class="result-area" id="resultArea" aria-live="polite">
             <div id="resultsContainer"></div>
         </div>
+
+        <!-- Footer Links -->
+        <div class="footer-links">
+            <a href="privacy.html">Privacy Policy</a> |
+            <a href="about.html">About</a> |
+            <a href="https://github.com/Kylozff/image-compressor" target="_blank">GitHub</a>
+        </div>
     </main>
 
     <!-- SEO Text Section -->
@@ -269,7 +279,6 @@
             fileInput.click();
         });
 
-        // Keyboard accessibility for upload area
         uploadArea.addEventListener('keydown', function(e) {
             if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
