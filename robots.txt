@@ -7,4 +7,7 @@ Allow: /
 User-agent: Mediapartners-Google
 Allow: /
 
+User-agent: AdsBot-Google
+Allow: /
+
 Sitemap: https://www.compressimage.isroot.in/sitemap.xml
